@@ -19,15 +19,14 @@ if [ "$1" = "-h" ]; then
   exit 0
 fi
 
-if [ -z "$1" ]
-  then
+if [ -z "$1" ]; then
     echo "Warn: missing old file name, will use 'old_DB.sql'"
 	#$1='old_DB.sql'
 	#to edit passed value you need to set them all
 	set -- 'old_DB.sql' "${@:2:3}"
 fi
-if [ -z "$2" ]
-  then
+
+if [ -z "$2" ]; then
     echo "Warn: missing new file name, will use 'new_DB.sql'"
 	#$2='new_DB.sql'
 	#to edit passed value you need to set them all
@@ -45,8 +44,8 @@ if [ ! -f "$2" ]; then
 fi
 
 #cleaning sql create table here
-cat "$1" | grep -v '^/\*\|^$\|^-- \|^  CONSTRAINT' | sed '/ENGINE=/c\);\n' | sed 's/ COMMENT.*$//' > clean_"$1"
-cat "$2" | grep -v '^/\*\|^$\|^-- \|^  CONSTRAINT' | sed '/ENGINE=/c\);\n' | sed 's/ COMMENT.*$//' > clean_"$2"
+cat "$1" | grep -v '^/\*\|^$\|^-- \|^  CONSTRAINT' | sed -e '/ENGINE=/c\);\n' -e 's/ COMMENT.*$//' -e '/^$/d' > clean_"$1"
+cat "$2" | grep -v '^/\*\|^$\|^-- \|^  CONSTRAINT' | sed -e '/ENGINE=/c\);\n' -e 's/ COMMENT.*$//' -e '/^$/d' > clean_"$2"
 
 #sed '/ENGINE=/c\);\n' replace any line that contains '/ENGINE=' with ');\n'
 #sed 's/ COMMENT.*$//' removed everything in the line after ' COMMENT' with that string included
