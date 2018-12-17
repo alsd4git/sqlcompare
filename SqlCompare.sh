@@ -1,4 +1,7 @@
-usage="`basename $0` [-h] [oldFile newFile diffType] -- program to clean and compare two SQL create table
+#!/bin/sh
+#thanks to https://www.shellcheck.net/ for spell checking
+
+usage="$(basename "$0") [-h] [oldFile newFile diffType] -- program to clean and compare two SQL create table
 
 where:
 	-h  show this help text
@@ -11,7 +14,7 @@ where:
 		4) use standard diff with some grep colors
 "
 
-if [ "$1" == "-h" ]; then
+if [ "$1" = "-h" ]; then
   echo "$usage"
   exit 0
 fi
@@ -32,12 +35,12 @@ if [ -z "$2" ]
 fi
 
 if [ ! -f "$1" ]; then
-    echo "File $1 not found! use \"`basename $0` -h\" for script usage"
+    echo "File $1 not found! use \"$(basename "$0") -h\" for script usage"
 	exit 1
 fi
 
 if [ ! -f "$2" ]; then
-    echo "File $2 not found! use \"`basename $0` -h\" for script usage"
+    echo "File $2 not found! use \"$(basename "$0") -h\" for script usage"
 	exit 1
 fi
 
@@ -49,25 +52,32 @@ cat "$2" | grep -v '^/\*\|^$\|^-- \|^  CONSTRAINT' | sed '/ENGINE=/c\);\n' | sed
 #sed 's/ COMMENT.*$//' removed everything in the line after ' COMMENT' with that string included
 #'\|' is a separator to be used as "OR" 
 
-case $3 in
-1)
-	echo '1 - will use icdiff (python)'
-	icdiff clean_"$1" clean_"$2" --cols=150 -W
-	;;
-2)
-	echo '2 - will use meld (windows)'
-	'C:\Program Files (x86)\Meld\meld.exe' clean_"$1" clean_"$2" &
-	;;
-3)
-	echo '3 - will use basic diff'
-	diff clean_"$1" clean_"$2" --color=always
-	;;
-4)
-	echo '4 - will use diff with colored grep'
-	diff -y clean_"$1" clean_"$2" | GREP_COLOR='01;32' egrep --color=always '.*>.*|$' | GREP_COLOR='01;31' egrep --color=always '.*<.*|$' | GREP_COLOR='01;36' egrep --color=always '.*\|.*|$' | less -R
-	;;
-*)
-	echo 'no option/invalid option provided will use diff with colored grep'
-	diff -y clean_"$1" clean_"$2" | GREP_COLOR='01;32' egrep --color=always '.*>.*|$' | GREP_COLOR='01;31' egrep --color=always '.*<.*|$' | GREP_COLOR='01;36' egrep --color=always '.*\|.*|$' | less -R
-	;;
-esac
+
+if  ! cmp -s clean_"$1" clean_"$2" ; then
+
+	case $3 in
+		1)
+			echo '1 - will use icdiff (python)'
+			icdiff clean_"$1" clean_"$2" --cols=150 -W
+			;;
+		2)
+			echo '2 - will use meld (windows)'
+			'C:\Program Files (x86)\Meld\meld.exe' clean_"$1" clean_"$2" &
+			;;
+		3)
+			echo '3 - will use basic diff'
+			diff clean_"$1" clean_"$2" --color=always
+			;;
+		4)
+			echo '4 - will use diff with colored grep'
+			diff -y clean_"$1" clean_"$2" | GREP_COLOR='01;32' grep -E --color=always '.*>.*|$' | GREP_COLOR='01;31' grep -E --color=always '.*<.*|$' | GREP_COLOR='01;36' grep -E --color=always '.*\|.*|$' | less -R
+			;;
+		*)
+			echo 'no option/invalid option provided will use diff with colored grep'
+			diff -y clean_"$1" clean_"$2" | GREP_COLOR='01;32' grep -E --color=always '.*>.*|$' | GREP_COLOR='01;31' grep -E --color=always '.*<.*|$' | GREP_COLOR='01;36' grep -E --color=always '.*\|.*|$' | less -R
+			;;
+	esac
+
+else
+	echo -e '\n\tsame (clean) content, nothing to show'
+fi

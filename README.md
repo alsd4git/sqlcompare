@@ -5,7 +5,7 @@ simple shell script to compare two SQL create tables
 to start:
 ```sh
 git clone https://github.com/alsd4git/sqlcompare
-cd dotfiles
+cd sqlcompare
 chmod a+x SqlCompare.sh
 ```
 
