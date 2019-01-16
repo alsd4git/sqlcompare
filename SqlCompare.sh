@@ -1,7 +1,8 @@
 #!/bin/sh
 #thanks to https://www.shellcheck.net/ for spell checking
 
-usage="$(basename "$0") [-h] [oldFile newFile diffType] -- program to clean and compare two SQL create table
+usage="
+$(basename "$0") [-h] [oldFile newFile diffType] -- program to clean and compare two SQL create table
 
 where:
 	-h  show this help text
@@ -49,15 +50,15 @@ cat "$2" | grep -v '^/\*\|^$\|^-- \|^  CONSTRAINT' | sed -e '/ENGINE=/c\);\n' -e
 
 #sed '/ENGINE=/c\);\n' replace any line that contains '/ENGINE=' with ');\n'
 #sed 's/ COMMENT.*$//' removed everything in the line after ' COMMENT' with that string included
-#'\|' is a separator to be used as "OR" 
+#'\|' is a separator to be used as "OR"
 
 
 if  ! cmp -s clean_"$1" clean_"$2" ; then
-
+	#files are different
 	case $3 in
 		1)
 			echo '1 - will use icdiff (python)'
-			icdiff clean_"$1" clean_"$2" --cols=150 -W
+			icdiff clean_"$1" clean_"$2" --cols=160 -W
 			;;
 		2)
 			echo '2 - will use meld (windows)'
@@ -76,7 +77,6 @@ if  ! cmp -s clean_"$1" clean_"$2" ; then
 			diff -y clean_"$1" clean_"$2" | GREP_COLOR='01;32' grep -E --color=always '.*>.*|$' | GREP_COLOR='01;31' grep -E --color=always '.*<.*|$' | GREP_COLOR='01;36' grep -E --color=always '.*\|.*|$' | less -R
 			;;
 	esac
-
 else
 	echo -e '\n\tsame (clean) content, nothing to show'
 fi

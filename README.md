@@ -6,7 +6,7 @@ to start:
 ```sh
 git clone https://github.com/alsd4git/sqlcompare
 cd sqlcompare
-chmod a+x SqlCompare.sh
+chmod +x SqlCompare.sh
 ```
 
 I usually just use it with 
